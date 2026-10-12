@@ -61,6 +61,7 @@ const apps = [
   {name:"Инструменты", icon:"🧰", version:"1.0", description:"Полезные инструменты и ссылки."},
   {name:"Тестовое приложение", icon:"🧪", version:"1.0", description:"Проверка работы магазина."},
   {name:"Umhanov Tools", icon:"🔐", version:"1.0", description:"Генератор надёжных паролей.", link:"tools.html"},
+  {name:"YouTube", icon:"▶️", version:"Официальное приложение", description:"Смотри видео на YouTube.", link:"https://apps.apple.com/gr/app/youtube/id544007664"},
 ];
 
 function render() {
@@ -72,7 +73,7 @@ function render() {
       <h3>${a.name}</h3>
       <p>Версия ${a.version}</p>
       <p>${a.description}</p>
-      <button onclick="if ('${a.name}' === 'Umhanov Tools') { location.href = 'tools.html'; } else { alert('Каталог работает! Установку подключим позже.'); }">Подробнее</button>
+      <button onclick="if (a.link) { window.open(a.link, '_blank', 'noopener'); } else if (a.name === 'Umhanov Tools') { location.href = 'tools.html'; } else { alert('Каталог работает! Установку подключим позже.'); }">Подробнее</button>
     </div>`).join("");
 }
 document.getElementById("search").addEventListener("input", render);
