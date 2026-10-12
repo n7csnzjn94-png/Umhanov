@@ -1,0 +1,247 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Umhanov Tools — Генератор паролей</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    .container { max-width: 620px; margin: 0 auto; }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 28px;
+      color: #1769e0;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    h1 { font-size: 34px; margin: 0 0 8px; }
+    .subtitle { color: #65718a; margin-bottom: 28px; }
+
+    .card {
+      background: white;
+      padding: 26px;
+      border: 1px solid #e3e8f0;
+      border-radius: 22px;
+      box-shadow: 0 8px 30px rgba(30, 60, 100, .05);
+    }
+
+    label { display: block; font-weight: 600; margin: 20px 0 10px; }
+
+    .output {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid #d7deea;
+      border-radius: 12px;
+      font-size: 16px;
+      color: #172033;
+      background: #f9fbff;
+    }
+
+    input[type="range"] { width: 100%; accent-color: #1769e0; }
+
+    .length-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #lengthValue { color: #1769e0; font-weight: 700; }
+
+    .options { display: grid; gap: 14px; }
+
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      font-weight: 400;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #1769e0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 24px;
+      background: #1769e0;
+      color: white;
+    }
+
+    .secondary {
+      background: #eaf2ff;
+      color: #1769e0;
+      white-space: nowrap;
+    }
+
+    button:hover { filter: brightness(.97); }
+    button:focus-visible, input:focus-visible {
+      outline: 3px solid #9fc4ff;
+      outline-offset: 2px;
+    }
+
+    #message { min-height: 22px; margin: 12px 0 0; color: #1769e0; }
+    .note { color: #65718a; font-size: 13px; line-height: 1.5; margin-top: 20px; }
+
+    @media (max-width: 420px) {
+      .card { padding: 20px; }
+      .output { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <a class="back" href="./">← Назад в MyAppStore</a>
+    <h1>Umhanov Tools</h1>
+    <p class="subtitle">Простые инструменты для повседневных задач.</p>
+
+    <section class="card">
+      <h2>Генератор паролей</h2>
+      <p>Создай случайный пароль с нужными настройками.</p>
+
+      <div class="output">
+        <input id="password" type="text" readonly
+          aria-label="Сгенерированный пароль" autocomplete="off"
+          spellcheck="false" placeholder="Нажми «Создать пароль»">
+        <button class="secondary" id="copyButton" type="button">Копировать</button>
+      </div>
+
+      <label for="length">Длина пароля</label>
+      <div class="length-row">
+        <span>От 8 до 40 символов</span>
+        <span id="lengthValue">16</span>
+      </div>
+      <input id="length" type="range" min="8" max="40" value="16">
+
+      <label>Какие символы использовать?</label>
+      <div class="options">
+        <label><input id="lower" type="checkbox" checked> Строчные буквы (abc)</label>
+        <label><input id="upper" type="checkbox" checked> Заглавные буквы (ABC)</label>
+        <label><input id="numbers" type="checkbox" checked> Цифры (123)</label>
+        <label><input id="symbols" type="checkbox" checked> Специальные символы (!@#)</label>
+      </div>
+
+      <button class="primary" id="generateButton" type="button">Создать пароль</button>
+      <p id="message" role="status" aria-live="polite"></p>
+      <p class="note">Пароль создаётся прямо в твоём браузере и никуда не отправляется. Для важных аккаунтов всегда сохраняй его в надёжном менеджере паролей.</p>
+    </section>
+  </main>
+
+  <script>
+    const passwordField = document.getElementById("password");
+    const lengthSlider = document.getElementById("length");
+    const lengthValue = document.getElementById("lengthValue");
+    const message = document.getElementById("message");
+
+    function secureRandom(max) {
+      const limit = Math.floor(4294967296 / max) * max;
+      const numbers = new Uint32Array(1);
+      do {
+        crypto.getRandomValues(numbers);
+      } while (numbers[0] >= limit);
+      return numbers[0] % max;
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = secureRandom(i + 1);
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function generatePassword() {
+      const groups = [];
+
+      if (document.getElementById("lower").checked)
+        groups.push("abcdefghijkmnopqrstuvwxyz");
+      if (document.getElementById("upper").checked)
+        groups.push("ABCDEFGHJKLMNPQRSTUVWXYZ");
+      if (document.getElementById("numbers").checked)
+        groups.push("23456789");
+      if (document.getElementById("symbols").checked)
+        groups.push("!@#$%&*+-=?_");
+
+      if (groups.length === 0) {
+        passwordField.value = "";
+        message.textContent = "Выбери хотя бы один тип символов.";
+        return;
+      }
+
+      const length = Number(lengthSlider.value);
+      if (length < groups.length) {
+        message.textContent = "Увеличь длину пароля для выбранных типов символов.";
+        return;
+      }
+
+      const allCharacters = groups.join("");
+      const result = groups.map(group =>
+        group[secureRandom(group.length)]
+      );
+
+      while (result.length < length) {
+        result.push(allCharacters[secureRandom(allCharacters.length)]);
+      }
+
+      passwordField.value = shuffle(result).join("");
+      message.textContent = "Пароль создан!";
+    }
+
+    lengthSlider.addEventListener("input", () => {
+      lengthValue.textContent = lengthSlider.value;
+    });
+
+    document.getElementById("generateButton").addEventListener("click", generatePassword);
+
+    document.getElementById("copyButton").addEventListener("click", async () => {
+      if (!passwordField.value) {
+        message.textContent = "Сначала создай пароль.";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(passwordField.value);
+        message.textContent = "Пароль скопирован!";
+      } catch {
+        passwordField.focus();
+        passwordField.select();
+        message.textContent = "Выделил пароль. Нажми Ctrl+C, чтобы скопировать.";
+      }
+    });
+
+    generatePassword();
+  </script>
+</body>
+</html>
+```
