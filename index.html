@@ -72,7 +72,7 @@ function render() {
       <h3>${a.name}</h3>
       <p>Версия ${a.version}</p>
       <p>${a.description}</p>
-      <button onclick="alert('Каталог работает! Установку подключим позже.')">Подробнее</button>
+      <button onclick="if ('${a.name}' === 'Umhanov Tools') { location.href = 'tools.html'; } else { alert('Каталог работает! Установку подключим позже.'); }">Подробнее</button>
     </div>`).join("");
 }
 document.getElementById("search").addEventListener("input", render);
