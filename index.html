@@ -76,7 +76,9 @@ function render() {
       <h3>${a.name}</h3>
       <p>Версия ${a.version}</p>
       <p>${a.description}</p>
-          <button onclick="${a.name === 'Umhanov Tools' ? "location.href='tools.html'" : a.name === 'YouTube' ? "window.open('https://apps.apple.com/gr/app/youtube/id544007664','_blank')" : "alert('Каталог работает! Установку подключим позже.')"}">Подробнее</button>
+          
+        <button onclick="${a.name === 'Umhanov Tools' ? 'location.href=\'tools.html\'' : a.name === 'YouTube' ? 'window.open(\'https://apps.apple.com/gr/app/youtube/id544007664\', \'_blank\')' : a.name === 'Россельхозбанк' ? 'window.open(\'https://github.com/n7csnzjn94-png/Umhanov/releases/download/rshb-ipa-v1/_._22.10.2_iOS_12.0+_umhanov777%40mail.ru.ipa\', \'_blank\')' : 'alert(\'Каталог работает!\')'}">Подробнее</button>
+
     </div>`).join("");
 }
 document.getElementById("search").addEventListener("input", render);
